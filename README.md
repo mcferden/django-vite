@@ -21,6 +21,7 @@ Integration of [ViteJS](https://vitejs.dev/) in a Django project.
   - [dev\_server\_host](#dev_server_host)
   - [dev\_server\_port](#dev_server_port)
   - [static\_url\_prefix](#static_url_prefix)
+  - [static\_url\_origin](#static_url_origin)
   - [manifest\_path](#manifest_path)
   - [legacy\_polyfills\_motif](#legacy_polyfills_motif)
   - [ws\_client\_url](#ws_client_url)
@@ -332,6 +333,16 @@ export default defineConfig({
   ...
 })
 ```
+
+### static_url_origin
+- **Type**: `str`
+- **Default**: `""`
+- **Legacy Key**: `DJANGO_VITE_STATIC_URL_ORIGIN`
+
+The origin address to use for static files built by ViteJS in production.
+
+It's useful if you want to serve ViteJS assets from another location, e.g. CDN,
+and don't want (or can't) change your `STATIC_URL` setting.
 
 ### manifest_path
 - **Type**: `str | Path`
