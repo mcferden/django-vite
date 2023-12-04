@@ -172,6 +172,78 @@ def test_vite_asset_production_prefix(patch_settings):
     assert len(links) == 13
 
 
+@pytest.mark.parametrize(
+    "patch_settings",
+    [
+        {
+            "DJANGO_VITE_DEV_MODE": False,
+            "DJANGO_VITE_STATIC_URL_ORIGIN": "https://example.com",
+        },
+        {
+            "DJANGO_VITE": {
+                "default": {
+                    "dev_mode": False,
+                    "static_url_origin": "https://example.com",
+                }
+            }
+        },
+    ],
+    indirect=True,
+)
+def test_vite_asset_production_origin(patch_settings):
+    template = Template(
+        """
+        {% load django_vite %}
+        {% vite_asset "src/entry.ts" %}
+    """
+    )
+    html = template.render(Context({}))
+    soup = BeautifulSoup(html, "html.parser")
+    script_tag = soup.find("script")
+    assert script_tag["src"] == "https://example.com/assets/entry-29e38a60.js"
+    assert script_tag["type"] == "module"
+    links = soup.find_all("link")
+    assert len(links) == 13
+
+
+@pytest.mark.parametrize(
+    "patch_settings",
+    [
+        {
+            "INSTALLED_APPS": ["django_vite", "django.contrib.staticfiles"],
+            "DJANGO_VITE_DEV_MODE": False,
+            "DJANGO_VITE_STATIC_URL_PREFIX": "custom/prefix/",
+            "DJANGO_VITE_STATIC_URL_ORIGIN": "https://example.com",
+        },
+        {
+            "INSTALLED_APPS": ["django_vite", "django.contrib.staticfiles"],
+            "DJANGO_VITE": {
+                "default": {
+                    "dev_mode": False,
+                    "static_url_prefix": "custom/prefix/",
+                    "static_url_origin": "https://example.com",
+                }
+            }
+        },
+    ],
+    indirect=True,
+)
+def test_vite_asset_production_origin_with_prefix_and_storage(patch_settings):
+    template = Template(
+        """
+        {% load django_vite %}
+        {% vite_asset "src/entry.ts" %}
+    """
+    )
+    html = template.render(Context({}))
+    soup = BeautifulSoup(html, "html.parser")
+    script_tag = soup.find("script")
+    assert script_tag["src"] == "https://example.com/static/custom/prefix/assets/entry-29e38a60.js"
+    assert script_tag["type"] == "module"
+    links = soup.find_all("link")
+    assert len(links) == 13
+
+
 @pytest.mark.usefixtures("dev_mode_false")
 def test_vite_asset_production_staticfiles_storage(patch_settings):
     patch_settings(
